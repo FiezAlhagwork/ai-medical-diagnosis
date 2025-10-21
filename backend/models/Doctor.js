@@ -33,10 +33,8 @@ const doctorSchema = new mongoose.Schema(
       ],
     },
     experienceYears: { type: Number, default: 0 },
-    location: {
-      province: String,
-      city: String,
-    },
+    province: { type: String, required: true },
+    city: { type: String, required: true },
 
     contact: {
       email: { type: String, required: true },

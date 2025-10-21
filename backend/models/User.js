@@ -1,3 +1,4 @@
+const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -24,10 +25,8 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     }, // Role-based access
-    location: {
-      province: { type: String },
-      city: { type: String },
-    },
+    province: { type: String, required: true },
+    city: { type: String, required: true },
   },
   { timestamps: true }
 );
