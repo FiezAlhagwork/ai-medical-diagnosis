@@ -4,6 +4,8 @@ const port = process.env.PORT || 5000;
 const cors = require("cors");
 const connectDb = require("./config/db");
 
+const authRoutes  = require("./routes/authRoutes")
+
 const app = express();
 
 //Middleware to handle CORS
@@ -20,6 +22,10 @@ connectDb();
 
 // Middleware
 app.use(express.json());
+
+
+// Route
+app.use("/api/auth" , authRoutes)
 
 app.get("/", (req, res) => {
   res.send("AI Medical Diagnosis Backend is running");
