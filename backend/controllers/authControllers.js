@@ -53,11 +53,7 @@ const registerUser = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        city: user.city,
-        province: user.province,
-        gender: user.gender,
-        age: user.age,
-        role:user.role,
+        role: user.role,
         token,
       },
       error: false,
@@ -67,16 +63,50 @@ const registerUser = async (req, res) => {
   }
 };
 
-
+//@desc Login a user
+//@route POST /api/auth/login
+//@access Public
 const loginUser = async (req, res) => {
   try {
+    const { error } = loginValidation(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
-  } catch (error) {}
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found", error: true });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ message: "The password is incorrect", error: true });
+    }
+
+    const token = generateToken(user._id);
+
+    res.json({
+      message: "You have successfully logged in.",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token,
+      },
+      error:false
+    });
+  } catch (error) {
+    return res.status(500).json({ message:error.message, error:true });
+  }
 };
 
 const getUserProfile = async (req, res) => {
   try {
-    
+
   } catch (error) {}
 };
 
