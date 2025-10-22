@@ -97,17 +97,36 @@ const loginUser = async (req, res) => {
         role: user.role,
         token,
       },
-      error:false
+      error: false,
     });
   } catch (error) {
-    return res.status(500).json({ message:error.message, error:true });
+    return res.status(500).json({ message: error.message, error: true });
   }
 };
 
 const getUserProfile = async (req, res) => {
   try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-  } catch (error) {}
+    if (
+      req.user.role !== "admin" &&
+      req.user._id.toString() !== req.params.id
+    ) {
+      return res.status(403).json({
+        message: "You are not authorized to see this data.",
+        true: true,
+      });
+    }
+
+    res.status(200).json({
+      message: "User profile updated successfully.",
+      user,
+      error: false,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message, error: true });
+  }
 };
 
 module.exports = { registerUser, loginUser, getUserProfile };
