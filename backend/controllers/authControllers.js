@@ -104,6 +104,10 @@ const loginUser = async (req, res) => {
   }
 };
 
+//@desc get user info by Id
+//@route GET /api/auth/users  
+//@access Public
+
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
