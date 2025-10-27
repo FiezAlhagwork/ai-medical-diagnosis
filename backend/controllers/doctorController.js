@@ -23,6 +23,63 @@ const getAllDoctors = async (req, res) => {
 //@access Public
 const searchDoctors = async (req, res) => {
   try {
+    const { specialty, city, province } = req.query;
+    // التحقق الأساسي
+    if (!specialty) {
+      return res
+        .status(400)
+        .json({ message: "specialty is required", error: true });
+    }
+    let doctors = [];
+    let message = "";
+
+    // 🟢 1️⃣ البحث الكامل: اختصاص + مدينة + محافظة
+    if (city && province) {
+      doctors = await Doctor.find({ city, province, specialty }).lean();
+
+      if (doctors.length > 0) {
+        message = `تم العثور على أطباء ${specialty} في ${city} - ${province}`;
+      }
+    }
+
+    // 🟠 2️⃣ إذا مافي، نجرب على مستوى المدينة فقط
+    // if (doctors.length === 0 && city) {
+    //   doctors = await Doctor.find({ specialty, city });
+    //   if (doctors.length > 0) {
+    //     message = `تم العثور على أطباء ${specialty} في مدينة ${city}`;
+    //   }
+    // }
+
+    // 🟡 3️⃣ إذا مافي، نجرب على مستوى المحافظة فقط
+    if (doctors.length === 0 && province) {
+      doctors = await Doctor.find({ specialty, province }).lean();
+      if (doctors.length > 0) {
+        message = `تم العثور على أطباء ${specialty} في محافظة ${province}`;
+      }
+    }
+
+    // 🔵 4️⃣ إذا مافي ولا بمدينة ولا محافظة، نرجع حسب الاختصاص فقط
+    if (doctors.length === 0) {
+      doctors = await Doctor.find({ specialty }).lean();
+      if (doctors.length > 0) {
+        message = `لم يتم العثور على أطباء ${specialty} في منطقتك، لكن تم العثور على أطباء بنفس الاختصاص في مناطق أخرى`;
+      }
+    }
+
+    if (doctors.length === 0) {
+      return res.status(404).json({
+        message: `لم يتم العثور على أي طبيب اختصاص ${specialty}`,
+        doctors: [],
+        error: true,
+      });
+    }
+
+    res.status(200).json({
+      message,
+      count: doctors.length,
+      doctors,
+      error: false,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message, error: true });
   }
@@ -80,7 +137,7 @@ const updateDoctor = async (req, res) => {
     });
 
     if (!doctor) {
-      res.status(404).json({ message: "doctor not found" ,error:true});
+      res.status(404).json({ message: "doctor not found", error: true });
     }
 
     res
