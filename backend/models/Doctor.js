@@ -33,8 +33,30 @@ const doctorSchema = new mongoose.Schema(
       ],
     },
     experienceYears: { type: Number, default: 0 },
-    province: { type: String, required: true },
-    city: { type: String, required: true },
+    province: {
+      type: String,
+      required: true,
+      enum: [
+        "دمشق",
+        "ريف دمشق",
+        "حلب",
+        "حمص",
+        "حماة",
+        "اللاذقية",
+        "طرطوس",
+        "إدلب",
+        "درعا",
+        "السويداء",
+        "دير الزور",
+        "الرقة",
+        "الحسكة",
+        "القنيطرة",
+      ],
+    },
+    city: {
+      type: String,
+      required: true,
+    },
 
     contact: {
       email: { type: String, required: true },
