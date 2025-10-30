@@ -6,6 +6,7 @@ const connectDb = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
+const locationRoutes = require("./routes/locationRoutes");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use(express.json());
 // Route
 app.use("/api/auth", authRoutes);
 app.use("/api/doctor", doctorRoutes);
+app.use("/api/location", locationRoutes);
 
 app.get("/", (req, res) => {
   res.send("AI Medical Diagnosis Backend is running");
