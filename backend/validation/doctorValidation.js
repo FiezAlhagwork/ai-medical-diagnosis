@@ -15,11 +15,37 @@ const PROVINCES = [
   "القنيطرة",
 ];
 
+const specialty = [
+  "القلب والاوعية الدموية",
+  "طب أسنان",
+  "طب أطفال",
+  "طب عام",
+  "أنف وأذن وحنجرة",
+  "طوارئ",
+  "أمراض الدم والأورام",
+  "جراحة الكلى والمسالك البولية",
+  "أمراض معدية",
+  "جراحة عامة",
+  "تغذية",
+  "غدد صماء",
+  "باطنية",
+  "جراحة العظام والمفاصل",
+  "معالج نفسي",
+  "كلى",
+  "دماغ وأعصاب",
+  "روماتيزم ومفاصل",
+  "جلدية وتناسلية",
+  "صدرية",
+  "جراحة دماغ وأعصاب وعمود فقري",
+  "جراحة الأوعية الدموية",
+  "سمع ونطق",
+];
+
 const Joi = require("joi");
 
 const createDoctorSchema = Joi.object({
   name: Joi.string().min(3).max(100).required(),
-  specialty: Joi.string().required(),
+  specialty: Joi.string().valid(...specialty).required(),
   province: Joi.string()
     .valid(...PROVINCES)
     .required(),
