@@ -53,13 +53,11 @@ const getCitiesByProvince = async (req, res) => {
         .json({ message: "This province was not found.", error: true });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "All cities have been brought",
-        cities: location.cities,
-        error: false,
-      });
+    res.status(200).json({
+      message: "All cities have been brought",
+      cities: location.cities,
+      error: false,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message, error: true });
   }
