@@ -4,6 +4,8 @@ const {
   updateDoctorSchema,
 } = require("../validation/doctorValidation");
 
+const MedicalRecord = require("../models/MedicalRecord");
+
 //@desc get all doctors (Admin Only)
 //@route GET /api/doctors
 //@access Privet
@@ -170,10 +172,95 @@ const deleteDoctor = async (req, res) => {
   }
 };
 
+const searchDoctorAfterAi = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const diagnosis = await MedicalRecord.findById(id);
+
+    if (!diagnosis) {
+      return res.status(404).json({ message: "Diagnosis not found" });
+    }
+
+
+    const { matchedSpecialty } = diagnosis;
+    const { city, province } = req.user;
+
+    // التحقق الأساسي
+    if (!matchedSpecialty) {
+      return res
+        .status(400)
+        .json({ message: "specialty is required", error: true });
+    }
+    let doctors = [];
+    let message = "";
+
+    // 🟢 1️⃣ البحث الكامل: اختصاص + مدينة + محافظة
+    if (city && province) {
+      doctors = await Doctor.find({ city, province, specialty:matchedSpecialty }).lean();
+
+      if (doctors.length > 0) {
+        message = `تم العثور على أطباء ${matchedSpecialty} في ${city} - ${province}`;
+      }
+    }
+
+    // 🟠 2️⃣ إذا مافي، نجرب على مستوى المدينة فقط
+    // if (doctors.length === 0 && city) {
+    //   doctors = await Doctor.find({ specialty, city });
+    //   if (doctors.length > 0) {
+    //     message = `تم العثور على أطباء ${specialty} في مدينة ${city}`;
+    //   }
+    // }
+
+    // 🟡 3️⃣ إذا مافي، نجرب على مستوى المحافظة فقط
+    if (doctors.length === 0 && province) {
+      doctors = await Doctor.find({ specialty:matchedSpecialty, province }).lean();
+      if (doctors.length > 0) {
+        message = `تم العثور على أطباء ${matchedSpecialty} في محافظة ${province}`;
+      }
+    }
+
+    // 🔵 4️⃣ إذا مافي ولا بمدينة ولا محافظة، نرجع حسب الاختصاص فقط
+    if (doctors.length === 0) {
+      doctors = await Doctor.find({ specialty:matchedSpecialty }).lean();
+      if (doctors.length > 0) {
+        message = `لم يتم العثور على أطباء ${matchedSpecialty} في منطقتك، لكن تم العثور على أطباء بنفس الاختصاص في مناطق أخرى`;
+      }
+    }
+
+    if (doctors.length === 0) {
+      return res.status(404).json({
+        message: `لم يتم العثور على أي طبيب اختصاص ${matchedSpecialty}`,
+        doctors: [],
+        error: true,
+      });
+    }
+
+    diagnosis.matchedDoctor = doctors.map((doc) => ({
+      _id: doc._id,
+      name: doc.name,
+      specialty: doc.specialty,
+      city:doc.city,
+      province:doc.province
+    }));
+
+    diagnosis.status = "completed";
+    await diagnosis.save();
+
+    res.status(200).json({
+      message,
+      count: doctors.length,
+      doctors: diagnosis.matchedDoctor,
+      error: false,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message, error: true });
+  }
+};
 module.exports = {
   getAllDoctors,
   searchDoctors,
   createDoctor,
   updateDoctor,
   deleteDoctor,
+  searchDoctorAfterAi,
 };
