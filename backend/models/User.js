@@ -25,7 +25,26 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     }, // Role-based access
-    province: { type: String, required: true },
+    province: {
+      type: String,
+      required: true,
+      enum: [
+        "دمشق",
+        "ريف دمشق",
+        "حلب",
+        "حمص",
+        "حماة",
+        "اللاذقية",
+        "طرطوس",
+        "إدلب",
+        "درعا",
+        "السويداء",
+        "دير الزور",
+        "الرقة",
+        "الحسكة",
+        "القنيطرة",
+      ],
+    },
     city: { type: String, required: true },
   },
   { timestamps: true }
