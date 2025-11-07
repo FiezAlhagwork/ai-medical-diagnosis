@@ -7,7 +7,7 @@ const doctorSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        "قلب وأوعية دموية",
+        "القلب والاوعية الدموية",
         "طب أسنان",
         "طب أطفال",
         "طب عام",
