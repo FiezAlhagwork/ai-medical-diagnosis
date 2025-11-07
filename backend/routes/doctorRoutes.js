@@ -7,11 +7,13 @@ const {
   createDoctor,
   updateDoctor,
   deleteDoctor,
+  searchDoctorAfterAi
 } = require("../controllers/doctorController");
 
 
 router.get("/", protect, adminOnly, getAllDoctors);
 router.get("/search", searchDoctors);
+router.get("/search-doctors/:id", protect, searchDoctorAfterAi);
 router.post("/", protect, adminOnly, createDoctor);
 router.put("/:id", protect, adminOnly, updateDoctor);
 router.delete("/:id", protect, adminOnly, deleteDoctor);
