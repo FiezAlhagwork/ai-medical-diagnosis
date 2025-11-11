@@ -189,7 +189,58 @@ const getDiagnosisById = async (req, res) => {
   }
 };
 
+const deleteDiagnosis = async (req, res) => {
+  try {
+    const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID", error: true });
+    }
 
+    const diagnosis = await MedicalRecord.findById(id);
+    if (!diagnosis) {
+      return res
+        .status(404)
+        .json({ message: "There are no diagnoses at this time.", error: true });
+    }
 
-module.exports = { createDiagnosis, getAllDiagnoses, getDiagnosisById };
+    
+
+  if (
+      req.user.role !== "admin" &&
+      diagnosis.userId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "You are not authorized to view this diagnosis",
+        error: true,
+      });
+    }
+
+    // const isOwner = diagnosis.userId.toString() !== req.user._id.toString();
+    // const isAdmin = req.user.role !== "admin";
+
+    // if (isOwner && isAdmin) {
+    //   return res.status(403).json({
+    //     message: "You are not authorized to view this diagnosis",
+    //     error: true,
+    //   });
+    // }
+
+    await diagnosis.deleteOne();
+
+    res.status(200).json({
+      message: "The diagnosis was successfully deleted",
+      deletedId: id,
+      error: false,
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+module.exports = {
+  createDiagnosis,
+  getAllDiagnoses,
+  getDiagnosisById,
+  deleteDiagnosis,
+};
