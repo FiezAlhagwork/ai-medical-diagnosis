@@ -5,7 +5,7 @@ const {
 const { main } = require("../services/aiServices");
 const Doctor = require("../models/Doctor");
 const { sanitizeResultString } = require("../util/index");
-
+const mongoose = require("mongoose");
 const createDiagnosis = async (req, res) => {
   try {
     const { error, value } = createMedicalRecordSchema.validate(req.body, {
@@ -108,19 +108,88 @@ const createDiagnosis = async (req, res) => {
       next_step: aiJson.next_step,
       advice: aiJson.advice,
       possible_condition: aiJson.possible_condition,
-      status:"pending"
+      status: "pending",
     });
 
-    res
-      .status(201)
-      .json({
-        message: "Diagnosis created successfully",
-        error: false,
-        diagnosis,
-      });
+    res.status(201).json({
+      message: "Diagnosis created successfully",
+      error: false,
+      diagnosis,
+    });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }
 };
 
-module.exports = { createDiagnosis };
+const getAllDiagnoses = async (req, res) => {
+  try {
+    let diagnosis;
+    if (req.user.role === "admin") {
+      diagnosis = await MedicalRecord.find({})
+        .populate("userId", "name email")
+        .sort({ createdAt: -1 });
+    } else {
+      diagnosis = await MedicalRecord.find({ userId: req.user._id }).sort({
+        createdAt: -1,
+      });
+    }
+
+    if (!diagnosis || diagnosis.length === 0) {
+      return res.status(404).json({
+        message: "There are no diagnoses at this time.",
+        count: 0,
+        diagnoses: [],
+        error: false,
+      });
+    }
+
+    res.status(200).json({
+      message: "The diagnoses were successfully obtained.",
+      count: diagnosis.length,
+      diagnosis,
+      error: false,
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+const getDiagnosisById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID", error: true });
+    }
+
+    const diagnosis = await MedicalRecord.findById(id);
+    if (!diagnosis) {
+      return res
+        .status(404)
+        .json({ message: "There are no diagnoses at this time.", error: true });
+    }
+
+    if (
+      req.user.role !== "admin" &&
+      diagnosis.userId._id.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: "You are not authorized to view this diagnosis",
+        error: true,
+      });
+    }
+
+    res.status(200).json({
+      message: "The diagnosis was successfully obtained",
+      diagnosis,
+      error: false,
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+
+
+
+module.exports = { createDiagnosis, getAllDiagnoses, getDiagnosisById };
