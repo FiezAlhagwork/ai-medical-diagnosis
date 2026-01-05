@@ -61,7 +61,7 @@ const medicalRecord = new mongoose.Schema(
     ],
 
     confidence: { type: String },
-    severity: { type: String, enum: ["بسيط", "متوسط", "عالي", "طارئ"] },
+    severity: { type: String },
     next_step: { type: String },
     advice: { type: String, required: true },
     possible_condition: { type: String, required: true },
