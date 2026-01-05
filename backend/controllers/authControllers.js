@@ -111,7 +111,7 @@ const loginUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found" , error:true });
 
     if (
       req.user.role !== "admin" &&
