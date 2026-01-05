@@ -12,6 +12,10 @@ const MedicalRecord = require("../models/MedicalRecord");
 const getAllDoctors = async (req, res) => {
   try {
     const doctors = await Doctor.find();
+
+    if (!doctors) {
+      return res.status(404).json({ message: "No doctors found", error: true });
+    }
     return res
       .status(200)
       .json({ message: "Doctor fetched successfully", doctors, error: false });
@@ -178,9 +182,10 @@ const searchDoctorAfterAi = async (req, res) => {
     const diagnosis = await MedicalRecord.findById(id);
 
     if (!diagnosis) {
-      return res.status(404).json({ message: "Diagnosis not found" });
+      return res
+        .status(404)
+        .json({ message: "Diagnosis not found", error: true });
     }
-
 
     const { matchedSpecialty } = diagnosis;
     const { city, province } = req.user;
@@ -196,7 +201,11 @@ const searchDoctorAfterAi = async (req, res) => {
 
     // 🟢 1️⃣ البحث الكامل: اختصاص + مدينة + محافظة
     if (city && province) {
-      doctors = await Doctor.find({ city, province, specialty:matchedSpecialty }).lean();
+      doctors = await Doctor.find({
+        city,
+        province,
+        specialty: matchedSpecialty,
+      }).lean();
 
       if (doctors.length > 0) {
         message = `تم العثور على أطباء ${matchedSpecialty} في ${city} - ${province}`;
@@ -213,7 +222,10 @@ const searchDoctorAfterAi = async (req, res) => {
 
     // 🟡 3️⃣ إذا مافي، نجرب على مستوى المحافظة فقط
     if (doctors.length === 0 && province) {
-      doctors = await Doctor.find({ specialty:matchedSpecialty, province }).lean();
+      doctors = await Doctor.find({
+        specialty: matchedSpecialty,
+        province,
+      }).lean();
       if (doctors.length > 0) {
         message = `تم العثور على أطباء ${matchedSpecialty} في محافظة ${province}`;
       }
@@ -221,7 +233,7 @@ const searchDoctorAfterAi = async (req, res) => {
 
     // 🔵 4️⃣ إذا مافي ولا بمدينة ولا محافظة، نرجع حسب الاختصاص فقط
     if (doctors.length === 0) {
-      doctors = await Doctor.find({ specialty:matchedSpecialty }).lean();
+      doctors = await Doctor.find({ specialty: matchedSpecialty }).lean();
       if (doctors.length > 0) {
         message = `لم يتم العثور على أطباء ${matchedSpecialty} في منطقتك، لكن تم العثور على أطباء بنفس الاختصاص في مناطق أخرى`;
       }
@@ -239,8 +251,8 @@ const searchDoctorAfterAi = async (req, res) => {
       _id: doc._id,
       name: doc.name,
       specialty: doc.specialty,
-      city:doc.city,
-      province:doc.province
+      city: doc.city,
+      province: doc.province,
     }));
 
     diagnosis.status = "completed";
