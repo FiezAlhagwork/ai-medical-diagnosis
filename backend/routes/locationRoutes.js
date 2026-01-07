@@ -4,7 +4,7 @@ const {
   getAllLocation,
   getCitiesByProvince,
   getProvinces,
-  updateLocation
+  updateLocation,
 } = require("../controllers/locationController");
 const { adminOnly, protect } = require("../Middleware/authMiddleware");
 
@@ -15,6 +15,5 @@ router.get("/provinces", getProvinces);
 router.get("/cities", getCitiesByProvince);
 router.post("/", protect, adminOnly, createLocation);
 router.put("/:province", updateLocation); // تعديل محافظة موجودة
-
 
 module.exports = router;
