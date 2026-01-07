@@ -11,9 +11,9 @@ const createMedicalRecordSchema = Joi.object({
     .required()
     .messages({ "any.only": "Invalid duration" }),
   severity: Joi.string()
-    .valid("بسيط", "متوسط", "عالي", "طارئ")
+    .valid("low", "medium", "high", "emergency")
     .required()
     .messages({ "any.only": "The risk level is invalid." }),
 });
 
-module.exports = {createMedicalRecordSchema};
+module.exports = { createMedicalRecordSchema };
