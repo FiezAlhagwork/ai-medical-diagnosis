@@ -168,7 +168,6 @@ const getDiagnosisById = async (req, res) => {
         .status(404)
         .json({ message: "There are no diagnoses at this time.", error: true });
     }
-
     if (
       req.user.role !== "admin" &&
       diagnosis.userId._id.toString() !== req.user._id.toString()
@@ -203,10 +202,7 @@ const deleteDiagnosis = async (req, res) => {
         .status(404)
         .json({ message: "There are no diagnoses at this time.", error: true });
     }
-
-    
-
-  if (
+    if (
       req.user.role !== "admin" &&
       diagnosis.userId.toString() !== req.user._id.toString()
     ) {
