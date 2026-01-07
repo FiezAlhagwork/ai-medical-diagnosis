@@ -21,13 +21,23 @@ const registerUser = async (req, res) => {
         .status(400)
         .json({ message: error.details[0].message, error: true });
 
-    const { name, email, password, city, province, gender, age } = req.body;
+    const { name, email, password, city, province, gender, age , phone } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ phone });
     if (existingUser) {
       return res
         .status(400)
         .json({ message: "User already exists", error: true });
+    }
+
+    if (email) {
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res.status(400).json({
+          message: "Email already registered",
+          error: true,
+        });
+      }
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -37,7 +47,8 @@ const registerUser = async (req, res) => {
 
     const user = await User.create({
       name,
-      email,
+      phone,
+      email:email || null,
       password: hashedPassword,
       city,
       province,
@@ -52,6 +63,7 @@ const registerUser = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        phone:user.phone,
         email: user.email,
         role: user.role,
         token,

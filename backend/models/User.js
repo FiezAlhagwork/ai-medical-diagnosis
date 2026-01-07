@@ -1,4 +1,3 @@
-const { required } = require("joi");
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -7,10 +6,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    email: {
+    phone: {
       type: String,
       required: true,
+      unique: true,
+      index: true,
+    },
+    email: {
+      type: String,
       lowercase: true,
+      unique: true,
+      sparse: true,
     },
     password: {
       type: String,
