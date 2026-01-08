@@ -63,6 +63,10 @@ const createDoctorSchema = Joi.object({
     }).optional(),
   }).required(),
   rating: Joi.number().min(0).max(5).default(0),
+  clinicAddress:Joi.string().min(10).max(70).required(),
+  education: Joi.object({
+    university :Joi.string().required()
+  }).required()
 }).options({ stripUnknown: true });
 
 const updateDoctorSchema = createDoctorSchema.fork(

@@ -71,7 +71,20 @@ const doctorSchema = new mongoose.Schema(
 
     //   availableTimes: [{ type: String }],
     rating: { type: Number, min: 0, max: 5, default: 0 },
+    clinicAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    education: {
+      university: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    },
   },
+
   { timestamps: true }
 );
 

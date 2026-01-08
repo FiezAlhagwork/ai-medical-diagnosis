@@ -96,15 +96,17 @@ const searchDoctors = async (req, res) => {
 //@access Privet
 const createDoctor = async (req, res) => {
   try {
-    const { error } = createDoctorSchema.validate(req.body);
+    const { error, value } = createDoctorSchema.validate(req.body, {
+      abortEarly: false,
+    });
     if (error) {
       return res
         .status(400)
-        .json({ message: error.details[0].message, error: true });
+        .json({ message: error.details.map((e) => e.message), error: true });
     }
 
     const existingDoctor = await Doctor.findOne({
-      "contact.email": req.body.contact.email,
+      "contact.email": value.contact.email,
     });
     if (existingDoctor) {
       return res.status(400).json({
@@ -113,7 +115,7 @@ const createDoctor = async (req, res) => {
       });
     }
 
-    const newDoctor = await Doctor.create(req.body);
+    const newDoctor = await Doctor.create(value);
     res.status(201).json({
       message: "Doctor created successfully",
       doctor: newDoctor,
@@ -140,10 +142,11 @@ const updateDoctor = async (req, res) => {
 
     const doctor = await Doctor.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
+      runValidators: true,
     });
 
     if (!doctor) {
-      res.status(404).json({ message: "doctor not found", error: true });
+      return res.status(404).json({ message: "doctor not found", error: true });
     }
 
     res
