@@ -85,8 +85,8 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { phone , password } = req.body;
+    const user = await User.findOne({ phone });
     if (!user) {
       return res.status(404).json({ message: "User not found", error: true });
     }
@@ -105,6 +105,7 @@ const loginUser = async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        phone:phone,
         email: user.email,
         role: user.role,
         token,

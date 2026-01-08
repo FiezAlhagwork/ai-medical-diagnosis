@@ -23,11 +23,12 @@ const registerValidation = (data) => {
 
 const loginValidation = (data) => {
   const schema = Joi.object({
-    phone: Joi.pattern(/^\+[1-9]\d{10,14}$/)
+    phone: Joi.string()
+      .regex(/^\+9639\d{8}$/)
       .required()
       .messages({
-        "string.pattern.base":
-          "Phone number must be in international format (e.g. +9639XXXXXXX)",
+        "string.empty": "number phone is  required",
+        "string.pattern.base":  "Phone number must be in international format (e.g. +9639XXXXXXX)",
       }),
     password: Joi.string().min(6).required(),
   });
