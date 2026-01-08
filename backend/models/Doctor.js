@@ -83,8 +83,12 @@ const doctorSchema = new mongoose.Schema(
         trim: true,
       },
     },
+    image: {
+      url: String,
+      public_id: String,
+    },
   },
-
+  
   { timestamps: true }
 );
 

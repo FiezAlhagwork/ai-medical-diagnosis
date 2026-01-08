@@ -9,13 +9,14 @@ const {
   deleteDoctor,
   searchDoctorAfterAi
 } = require("../controllers/doctorController");
+const upload = require("../Middleware/uploadImage");
 
 
 router.get("/", protect, adminOnly, getAllDoctors);
 router.get("/search", searchDoctors);
 router.get("/search-doctors/:id", protect, searchDoctorAfterAi);
-router.post("/", protect, adminOnly, createDoctor);
-router.put("/:id", protect, adminOnly, updateDoctor);
+router.post("/", protect, adminOnly,upload.single("image"), createDoctor);
+router.put("/:id", protect, adminOnly,upload.single("image") ,updateDoctor);
 router.delete("/:id", protect, adminOnly, deleteDoctor);
 
 module.exports = router;

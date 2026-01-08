@@ -5,7 +5,8 @@ const {
 } = require("../validation/doctorValidation");
 
 const MedicalRecord = require("../models/MedicalRecord");
-
+const cloudinary = require("../config/cloudinary");
+const fs = require("fs");
 //@desc get all doctors (Admin Only)
 //@route GET /api/doctors
 //@access Privet
@@ -104,7 +105,6 @@ const createDoctor = async (req, res) => {
         .status(400)
         .json({ message: error.details.map((e) => e.message), error: true });
     }
-
     const existingDoctor = await Doctor.findOne({
       "contact.email": value.contact.email,
     });
@@ -114,8 +114,32 @@ const createDoctor = async (req, res) => {
         error: true,
       });
     }
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ error: true, message: "files is required" });
+    }
 
-    const newDoctor = await Doctor.create(value);
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    const doctorData = {
+      ...value,
+      image: {
+        url: result.secure_url,
+        public_id: result.public_id,
+      },
+    };
+
+    let newDoctor;
+    try {
+      newDoctor = await Doctor.create(doctorData);
+    } catch (dbError) {
+      // لو فشل الحفظ بالـ DB، نحذف الصورة من Cloudinary
+      if (req.file?.filename) {
+        await cloudinary.uploader.destroy(req.file.filename);
+      }
+      throw dbError;
+    }
     res.status(201).json({
       message: "Doctor created successfully",
       doctor: newDoctor,
@@ -140,18 +164,54 @@ const updateDoctor = async (req, res) => {
         error: true,
       });
 
-    const doctor = await Doctor.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const doctor = await Doctor.findById(req.params.id);
 
     if (!doctor) {
       return res.status(404).json({ message: "doctor not found", error: true });
     }
 
-    res
-      .status(200)
-      .json({ message: "Doctor updated successfully", doctor, error: false });
+    const updateData = { ...req.body };
+    if (req.file) {
+      // حذف الصورة القديمة من Cloudinary إذا موجودة
+      if (doctor.image?.public_id) {
+        try {
+          await cloudinary.uploader.destroy(doctor.image.public_id);
+        } catch (err) {
+          console.error("Failed to delete old image:", err.message);
+        }
+      }
+
+      let result;
+      try {
+        result = await cloudinary.uploader.upload(req.file.path);
+        fs.unlinkSync(req.file.path); // حذف الملف المحلي
+      } catch (uploadErr) {
+        return res
+          .status(500)
+          .json({ message: "Image upload failed", error: true });
+      }
+
+      // تحديث رابط الصورة و public_id
+      updateData.image = {
+        url: result.secure_url,
+        public_id: result.public_id,
+      };
+    }
+
+    // تحديث الدكتور بالـ DB
+    const updatedDoctor = await Doctor.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    res.status(200).json({
+      message: "Doctor updated successfully",
+      doctor: updatedDoctor,
+      error: false,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message, error: true });
   }
@@ -163,16 +223,22 @@ const updateDoctor = async (req, res) => {
 const deleteDoctor = async (req, res) => {
   try {
     const id = req.params.id;
-    const doctor = await Doctor.findByIdAndDelete(id);
+    const doctor = await Doctor.findById(id);
     if (!doctor) {
       res
         .status(404)
         .json({ message: "The doctor is not present", error: false });
     }
 
+    if (doctor.image) {
+      await cloudinary.uploader.destroy(doctor.image.public_id); // حذف الصورة من Cloudinary
+    }
+
+    const doctorDelete = await Doctor.findByIdAndDelete(id, { new: true });
+
     res.status(200).json({
       message: "The doctor has been successfully deleted",
-      deleteDoctorId: id,
+      deleteDoctorId: doctorDelete._id,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message, error: true });
