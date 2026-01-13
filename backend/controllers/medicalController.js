@@ -101,20 +101,20 @@ const createDiagnosis = async (req, res) => {
       symptomsText,
       quickSymptoms,
       duration,
-      aiResponse: aiResult,
       matchedSpecialty: aiJson.doctor_name,
       severity: aiJson.severity,
       confidence: aiJson.confidence,
       next_step: aiJson.next_step,
       advice: aiJson.advice,
       possible_condition: aiJson.possible_condition,
-      status: "pending",
     });
+
+    console.log(diagnosis);
 
     res.status(201).json({
       message: "Diagnosis created successfully",
       error: false,
-      diagnosis,
+      data: diagnosis,
     });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });

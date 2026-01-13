@@ -20,7 +20,7 @@ const medicalRecord = new mongoose.Schema(
         "أكثر من شهر",
       ],
     },
-    aiResponse: { type: mongoose.Schema.Types.Mixed },
+    // aiResponse: { type: mongoose.Schema.Types.Mixed },
     matchedSpecialty: {
       type: String,
       enum: [
@@ -50,22 +50,22 @@ const medicalRecord = new mongoose.Schema(
       ],
       required: true,
     },
-    matchedDoctor: [
-      {
-        _id: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
-        name: String,
-        specialty: String,
-        city:String,
-        province:String
-      },
-    ],
+    // matchedDoctor: [
+    //   {
+    //     _id: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
+    //     name: String,
+    //     specialty: String,
+    //     city:String,
+    //     province:String
+    //   },
+    // ],
 
     confidence: { type: String },
     severity: { type: String },
     next_step: { type: String },
     advice: { type: String, required: true },
     possible_condition: { type: String, required: true },
-    status: { type: String, enum: ["pending", "completed"] },
+    // status: { type: String, enum: ["pending", "completed"] },
   },
   { timestamps: true }
 );
