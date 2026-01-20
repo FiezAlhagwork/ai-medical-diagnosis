@@ -129,7 +129,7 @@ const getAllDiagnoses = async (req, res) => {
         .populate("userId", "name email")
         .sort({ createdAt: -1 });
     } else {
-      diagnosis = await MedicalRecord.find({ userId: req.user._id }).sort({
+      diagnosis = await MedicalRecord.find({ userId: req.user._id }).select("possible_condition createdAt confidence").sort({
         createdAt: -1,
       });
     }
@@ -180,7 +180,7 @@ const getDiagnosisById = async (req, res) => {
 
     res.status(200).json({
       message: "The diagnosis was successfully obtained",
-      diagnosis,
+      data: diagnosis,
       error: false,
     });
   } catch (error) {
