@@ -21,7 +21,7 @@ const registerUser = async (req, res) => {
         .status(400)
         .json({ message: error.details[0].message, error: true });
 
-    const { name, email, password, city, province, gender, age , phone } = req.body;
+    const { name, email, password, city, province, gender, age, phone } = req.body;
 
     const existingUser = await User.findOne({ phone });
     if (existingUser) {
@@ -48,7 +48,7 @@ const registerUser = async (req, res) => {
     const user = await User.create({
       name,
       phone,
-      email:email || null,
+      email: email || null,
       password: hashedPassword,
       city,
       province,
@@ -60,14 +60,8 @@ const registerUser = async (req, res) => {
 
     res.status(201).json({
       message: "The account has been created successfully",
-      user: {
-        id: user._id,
-        name: user.name,
-        phone:user.phone,
-        email: user.email,
-        role: user.role,
-        token,
-      },
+      user: user,
+      token,
       error: false,
     });
   } catch (error) {
@@ -85,7 +79,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: error.details[0].message });
     }
 
-    const { phone , password } = req.body;
+    const { phone, password } = req.body;
     const user = await User.findOne({ phone });
     if (!user) {
       return res.status(404).json({ message: "User not found", error: true });
@@ -102,14 +96,8 @@ const loginUser = async (req, res) => {
 
     res.json({
       message: "You have successfully logged in.",
-      user: {
-        id: user._id,
-        name: user.name,
-        phone:phone,
-        email: user.email,
-        role: user.role,
-        token,
-      },
+      user: user,
+      token,
       error: false,
     });
   } catch (error) {
@@ -124,7 +112,7 @@ const loginUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" , error:true });
+    if (!user) return res.status(404).json({ message: "User not found", error: true });
 
     if (
       req.user.role !== "admin" &&
