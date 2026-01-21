@@ -31,6 +31,7 @@ const createDiagnosis = async (req, res) => {
 "القلب والاوعية الدموية",
 "طب اسنان",
 "طب اطفال",
+"امراض الجهاز التنفسي", 
 "طب عام",
 "الانف والاذن و الحنجرة",
 "طوارى",
@@ -93,6 +94,8 @@ const createDiagnosis = async (req, res) => {
 `;
 
     const aiResult = await main(prompt);
+    console.log(aiResult);
+
 
     const aiJson = sanitizeResultString(aiResult);
 
@@ -138,7 +141,7 @@ const getAllDiagnoses = async (req, res) => {
       return res.status(404).json({
         message: "There are no diagnoses at this time.",
         count: 0,
-        diagnoses: [],
+        data: [],
         error: false,
       });
     }
@@ -146,7 +149,7 @@ const getAllDiagnoses = async (req, res) => {
     res.status(200).json({
       message: "The diagnoses were successfully obtained.",
       count: diagnosis.length,
-      diagnosis,
+      data: diagnosis,
       error: false,
     });
   } catch (error) {
