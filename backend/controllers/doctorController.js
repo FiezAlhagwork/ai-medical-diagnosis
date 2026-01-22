@@ -49,13 +49,6 @@ const searchDoctors = async (req, res) => {
       }
     }
 
-    // 🟠 2️⃣ إذا مافي، نجرب على مستوى المدينة فقط
-    // if (doctors.length === 0 && city) {
-    //   doctors = await Doctor.find({ specialty, city });
-    //   if (doctors.length > 0) {
-    //     message = `تم العثور على أطباء ${specialty} في مدينة ${city}`;
-    //   }
-    // }
 
     // 🟡 3️⃣ إذا مافي، نجرب على مستوى المحافظة فقط
     if (doctors.length === 0 && province) {
@@ -74,10 +67,11 @@ const searchDoctors = async (req, res) => {
     }
 
     if (doctors.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: `لم يتم العثور على أي طبيب اختصاص ${specialty}`,
+        count: 0,
         doctors: [],
-        error: true,
+        error: false,
       });
     }
 
