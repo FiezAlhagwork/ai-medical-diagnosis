@@ -112,8 +112,6 @@ const createDiagnosis = async (req, res) => {
       possible_condition: aiJson.possible_condition,
     });
 
-    console.log(diagnosis);
-
     res.status(201).json({
       message: "Diagnosis created successfully",
       error: false,
@@ -214,17 +212,6 @@ const deleteDiagnosis = async (req, res) => {
         error: true,
       });
     }
-
-    // const isOwner = diagnosis.userId.toString() !== req.user._id.toString();
-    // const isAdmin = req.user.role !== "admin";
-
-    // if (isOwner && isAdmin) {
-    //   return res.status(403).json({
-    //     message: "You are not authorized to view this diagnosis",
-    //     error: true,
-    //   });
-    // }
-
     await diagnosis.deleteOne();
 
     res.status(200).json({
