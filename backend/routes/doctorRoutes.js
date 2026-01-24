@@ -14,8 +14,8 @@ const upload = require("../Middleware/uploadImage");
 
 
 router.get("/", protect, adminOnly, getAllDoctors);
-router.get("/:id", getDoctorById);
 router.get("/search", searchDoctors);
+router.get("/:id", getDoctorById);
 router.get("/search-doctors/:id", protect, searchDoctorAfterAi);
 router.post("/", protect, adminOnly, upload.single("image"), createDoctor);
 router.put("/:id", protect, adminOnly, upload.single("image"), updateDoctor);

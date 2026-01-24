@@ -51,7 +51,9 @@ const createDoctorSchema = Joi.object({
     .required(),
   city: Joi.string().required(),
   experienceYears: Joi.number().min(0).max(60).default(0),
-
+  age: Joi.number().min(25).max(100).required(),
+  price: Joi.string().required(),
+  languages: Joi.string().required(),
   contact: Joi.object({
     email: Joi.string().email().required(),
     phone: Joi.string().min(8).max(15).required(),
@@ -63,9 +65,9 @@ const createDoctorSchema = Joi.object({
     }).optional(),
   }).required(),
   rating: Joi.number().min(0).max(5).default(0),
-  clinicAddress:Joi.string().min(10).max(70).required(),
+  clinicAddress: Joi.string().min(10).max(70).required(),
   education: Joi.object({
-    university :Joi.string().required()
+    university: Joi.string().required()
   }).required()
 }).options({ stripUnknown: true });
 

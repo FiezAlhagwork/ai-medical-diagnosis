@@ -58,6 +58,18 @@ const doctorSchema = new mongoose.Schema(
       required: true,
     },
 
+    age: {
+      type: Number,
+      required: true
+    },
+
+    price: {
+      type: String,
+      required: true
+    },
+
+    languages: { type: String, required: true },
+
     contact: {
       email: { type: String, required: true },
       phone: { type: String, required: true },
@@ -88,7 +100,7 @@ const doctorSchema = new mongoose.Schema(
       public_id: String,
     },
   },
-  
+
   { timestamps: true }
 );
 
