@@ -239,6 +239,52 @@ const deleteDoctor = async (req, res) => {
   }
 };
 
+//@desc Get doctor by ID
+//@route GET /api/doctors/:id
+//@access Public
+const getDoctorById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // التحقق من صحة ID
+    if (!id) {
+      return res.status(400).json({
+        message: "Doctor ID is required",
+        error: true
+      });
+    }
+
+    const doctor = await Doctor.findById(id);
+
+    if (!doctor) {
+      return res.status(404).json({
+        message: "Doctor not found",
+        error: true
+      });
+    }
+
+    return res.status(200).json({
+      message: "Doctor fetched successfully",
+      doctor,
+      error: false
+    });
+
+  } catch (error) {
+    // التحقق من خطأ ID غير صحيح
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        message: "Invalid doctor ID format",
+        error: true
+      });
+    }
+
+    return res.status(500).json({
+      message: error.message,
+      error: true
+    });
+  }
+};
+
 const searchDoctorAfterAi = async (req, res) => {
   try {
     const { id } = req.params;
@@ -274,14 +320,6 @@ const searchDoctorAfterAi = async (req, res) => {
         message = `تم العثور على أطباء ${matchedSpecialty} في ${city} - ${province}`;
       }
     }
-
-    // 🟠 2️⃣ إذا مافي، نجرب على مستوى المدينة فقط
-    // if (doctors.length === 0 && city) {
-    //   doctors = await Doctor.find({ specialty, city });
-    //   if (doctors.length > 0) {
-    //     message = `تم العثور على أطباء ${specialty} في مدينة ${city}`;
-    //   }
-    // }
 
     // 🟡 3️⃣ إذا مافي، نجرب على مستوى المحافظة فقط
     if (doctors.length === 0 && province) {
@@ -333,6 +371,7 @@ const searchDoctorAfterAi = async (req, res) => {
 };
 module.exports = {
   getAllDoctors,
+  getDoctorById,
   searchDoctors,
   createDoctor,
   updateDoctor,
