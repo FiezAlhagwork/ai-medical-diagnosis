@@ -25,6 +25,39 @@ const getAllDoctors = async (req, res) => {
   }
 };
 
+//@desc   Get top 10 rated doctors
+//@route  GET /api/doctors/top-rated
+//@access Public
+const getTopRatedDoctors = async (req, res) => {
+  try {
+    const doctors = await Doctor.find({}, "name specialty rating province image")
+      .sort({ rating: -1 })
+      .limit(10)
+      .lean();
+
+    if (doctors.length === 0) {
+      return res.status(200).json({
+        message: "There are no doctors currently available.",
+        count: 0,
+        doctors: [],
+        error: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: " The highest-rated doctors were brought in.",
+      count: doctors.length,
+      doctors,
+      error: false,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+      error: true,
+    });
+  }
+};
+
 //@desc search for Doctors
 //@route GET /api/doctors
 //@access Public
@@ -377,4 +410,5 @@ module.exports = {
   updateDoctor,
   deleteDoctor,
   searchDoctorAfterAi,
+  getTopRatedDoctors
 };
